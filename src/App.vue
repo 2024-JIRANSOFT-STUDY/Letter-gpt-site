@@ -27,7 +27,6 @@
 
 body {
   background: var(--main-dark);
-  overflow-y: hidden;
 }
 
 button {
