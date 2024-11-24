@@ -13,16 +13,21 @@
   --dark-alt: #334155;
   --light: #f1f5f9;
   --sidebar-width: 25%;
+  --main-dark: #1a1a1a;
+  --main-dark-wine: #3b1c32;
+  --main-amethyst: #6a1e55;
 }
 
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  color: white;
 }
 
 body {
-  background: var(--light);
+  background: var(--main-dark);
+  overflow-y: hidden;
 }
 
 button {

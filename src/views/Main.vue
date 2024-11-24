@@ -4,7 +4,6 @@
     <MainLayout>
       <template #children>
         <PromptForm></PromptForm>
-        <PromptResult></PromptResult>
       </template>
     </MainLayout>
   </div>
