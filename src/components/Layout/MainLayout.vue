@@ -1,9 +1,17 @@
-<script setup></script>
+<script setup>
+import { inject } from "vue";
+
+const isExpanded = inject("isExpanded");
+const toggleSidebar = inject("toggleSidebar");
+</script>
 
 <template>
   <div id="main-wrapper">
     <header>
-      <h1>LetterGTP</h1>
+      <button v-if="!isExpanded" class="logo-btn" @click="toggleSidebar">
+        <img src="@/assets/Letter_GPT_logo.png" alt="logo" />
+      </button>
+      <h1>LetterGPT</h1>
     </header>
     <main id="main-container">
       <slot name="children">
@@ -16,11 +24,26 @@
 <style scoped>
 header {
   text-align: center;
+  position: relative;
 }
 
 h1 {
   font-size: 48px;
   font-weight: 600;
+}
+
+.logo-btn {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.logo-btn img {
+  width: 40px;
+  height: 40px;
 }
 
 #main-wrapper {
