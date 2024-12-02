@@ -28,10 +28,8 @@ h1 {
 #main-wrapper {
   position: relative;
   width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 2rem 0;
+  height: auto;
+  overflow-y: scroll;
   // background-color: var(--dark);
 }
 
@@ -41,6 +39,7 @@ h1 {
 #main-container {
   width: calc(100% - 240px);
   min-width: 768px;
+  max-width: 1024px;
   margin: 0 auto;
 }
 </style>

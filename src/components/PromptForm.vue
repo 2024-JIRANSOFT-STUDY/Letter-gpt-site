@@ -166,7 +166,9 @@ const onSubmitForm = () => {
   align-self: center;
   border: 1px solid grey;
   border-radius: 8px;
-  padding: 8px 16px;
+  font-size: 1.25rem;
+  padding: 16px;
+  height: auto;
   background-color: transparent;
   width: fit-content;
 }

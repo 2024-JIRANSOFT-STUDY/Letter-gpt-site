@@ -20,6 +20,6 @@ import PromptResult from "../components/PromptResult.vue";
 .main {
   display: flex;
   width: 100%;
-  height: 100%;
+  height: 100vh;
 }
 </style>
