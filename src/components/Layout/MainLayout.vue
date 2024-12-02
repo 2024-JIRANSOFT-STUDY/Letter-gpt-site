@@ -4,7 +4,7 @@
   <div id="main-wrapper">
     <div id="main-box">
       <header>
-        <h1 class="text-h2">Letterly</h1>
+        <img src="/src/assets/MainLogo.png" alt="logo" />
       </header>
       <main id="main-container">
         <slot name="children">

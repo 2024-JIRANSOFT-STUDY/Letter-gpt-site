@@ -127,7 +127,7 @@ const onSubmitForm = () => {
   border: 4px solid var(--main-amethyst);
   border-radius: 16px;
   padding: 18px;
-  margin: 16px 8px;
+  margin: 0 8px;
   background: var(--main-dark-wine);
 }
 
