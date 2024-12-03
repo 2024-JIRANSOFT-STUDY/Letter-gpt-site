@@ -6,19 +6,17 @@
 </template>
 
 <script setup>
-import Sidebar from './components/Sidebar.vue';
+import Sidebar from "./components/Sidebar.vue";
 </script>
 
 <style lang="scss">
-@import 'vuetify/styles';
-
 :root {
-  --main: #1A1A1D;
-  --mid: #3B1C32;
-  --point: #6A1E55;
-  --light: #FFFFFF;
+  --main: #1a1a1d;
+  --mid: #3b1c32;
+  --point: #6a1e55;
+  --light: #ffffff;
+  background-color: #1a1a1d;
 }
-
 
 * {
   margin: 0;
@@ -28,7 +26,7 @@ import Sidebar from './components/Sidebar.vue';
 }
 
 body {
-  background: var(--main);
+  background-color: var(--main);
 }
 
 button {

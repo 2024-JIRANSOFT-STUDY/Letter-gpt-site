@@ -124,11 +124,11 @@ const onSubmitForm = () => {
 
 <style lang="scss" scoped>
 .form-wrapper {
-  border: 4px solid var(--main-amethyst);
+  border: 4px solid var(--point);
   border-radius: 16px;
   padding: 18px;
   margin: 0 8px;
-  background: var(--main-dark-wine);
+  background: var(--point);
 }
 
 .form-container {
@@ -203,7 +203,7 @@ const onSubmitForm = () => {
 
 .custom-v-list-item-list {
   .v-list {
-    background-color: var(--main-amethyst) !important;
+    background-color: var(--point) !important;
   }
 }
 </style>

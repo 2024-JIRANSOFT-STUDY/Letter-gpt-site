@@ -7,13 +7,11 @@ const toggleSidebar = inject("toggleSidebar");
 
 <template>
   <div id="main-wrapper">
+    <button v-if="!isExpanded" class="logo-btn" @click="toggleSidebar">
+      <img src="@/assets/Letter_GPT_logo.png" alt="logo" />
+    </button>
     <div id="main-box">
-      <button v-if="!isExpanded" class="logo-btn" @click="toggleSidebar">
-        <img src="@/assets/Letter_GPT_logo.png" alt="logo" />
-      </button>
-      <header>
-        <img src="/src/assets/MainLogo.png" alt="logo" />
-      </header>
+      <img src="/src/assets/MainLogo.png" alt="logo" />
       <main id="main-container">
         <div class="b-level-comment">
           <p>편지는 써야겠고 하지만 편지쓰기는 힘들 때가 있죠?</p>
@@ -33,11 +31,6 @@ const toggleSidebar = inject("toggleSidebar");
 </template>
 
 <style scoped lang="scss">
-header {
-  text-align: center;
-  position: relative;
-}
-
 h1 {
   font-size: 48px;
   font-weight: 600;
@@ -62,10 +55,16 @@ h1 {
   width: 100%;
   height: auto;
   overflow-y: scroll;
-  // background-color: var(--dark);
+  background-color: var(--main);
+}
+
+#main-box {
+  text-align: center;
 }
 
 .b-level-comment {
+  text-align: left;
+  color: white;
   margin-left: 1rem;
   margin-bottom: 1.5rem;
 
