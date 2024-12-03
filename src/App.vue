@@ -1,10 +1,13 @@
 <template>
   <v-app>
+    <Sidebar />
     <router-view />
   </v-app>
 </template>
 
-<script setup></script>
+<script setup>
+import Sidebar from './components/Sidebar.vue';
+</script>
 
 <style lang="scss">
 @import 'vuetify/styles';
