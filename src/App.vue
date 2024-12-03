@@ -1,19 +1,24 @@
 <template>
-  <router-view />
+  <v-app>
+    <Sidebar />
+    <router-view />
+  </v-app>
 </template>
 
-<script setup></script>
+<script setup>
+import Sidebar from './components/Sidebar.vue';
+</script>
 
 <style lang="scss">
+@import 'vuetify/styles';
+
 :root {
-  --primary: #c9e6f0;
-  --primary-alt: #c9e6f0;
-  --grey: #64748b;
-  --dark: #1e293b;
-  --dark-alt: #334155;
-  --light: #f1f5f9;
-  --sidebar-width: 25%;
+  --main: #1A1A1D;
+  --mid: #3B1C32;
+  --point: #6A1E55;
+  --light: #FFFFFF;
 }
+
 
 * {
   margin: 0;
@@ -22,7 +27,7 @@
 }
 
 body {
-  background: var(--light);
+  background: var(--main);
 }
 
 button {
