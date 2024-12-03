@@ -13,7 +13,6 @@
 import Sidebar from "../components/Sidebar.vue";
 import MainLayout from "../components/Layout/MainLayout.vue";
 import PromptForm from "../components/PromptForm.vue";
-import PromptResult from "../components/PromptResult.vue";
 </script>
 
 <style scoped lang="scss">
