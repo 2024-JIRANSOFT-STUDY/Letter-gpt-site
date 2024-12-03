@@ -11,7 +11,7 @@ const formData = reactive({
   toneFile: null,
 });
 
-const situationList = [
+const situationListData = [
   { label: "그냥 편지 쓰고 싶어서", value: "normal" },
   { label: "생일", value: "birthday" },
   { label: "결혼", value: "marriage" },
@@ -21,6 +21,11 @@ const situationList = [
   { label: "입학", value: "entrance" },
   { label: "기념일", value: "anniversary" },
   { label: "기타", value: "etc" },
+];
+
+const GenderListData = [
+  { label: "남", value: "male" },
+  { label: "여", value: "female" },
 ];
 
 const onFileChange = (event) => {
@@ -37,78 +42,99 @@ const onSubmitForm = () => {
 </script>
 
 <template>
-  <div class="form-wrapper">
-    <form>
-      <div class="form-container">
+  <v-sheet class="form-wrapper">
+    <v-form>
+      <v-container class="form-container">
         <label>상황선택</label>
-        <select class="field" v-model="formData.situation">
-          <option
-            v-for="{ label, value } in situationList"
-            :key="value"
-            :value="value"
-          >
-            {{ label }}
-          </option>
-        </select>
+        <v-select
+          v-model="formData.situation"
+          label="상황 선택"
+          variant="outlined"
+          :items="situationListData"
+          item-title="label"
+          item-value="value"
+          :menu-props="{ contentClass: 'custom-v-list-item-list' }"
+          class="custom-field"
+        />
         <label for="receiver">누구에게</label>
-        <input
+        <v-text-field
           type="text"
-          class="field"
           v-model="formData.receiver"
+          label="Label"
+          variant="outlined"
           name="receiver"
+          class="custom-field"
         />
         <label for="myAge">본인나이</label>
-        <input
+        <v-text-field
           type="number"
-          class="field"
           v-model="formData.myAge"
           name="myAge"
+          variant="outlined"
+          class="custom-field"
         />
         <label for="myGender">본인성별</label>
-        <select class="field" v-model="formData.myGender" name="myGender">
-          <option value="male">남</option>
-          <option value="female">여</option>
-        </select>
+        <v-select
+          v-model="formData.myGender"
+          label="본인성별"
+          variant="outlined"
+          :items="GenderListData"
+          item-title="label"
+          item-value="value"
+          :menu-props="{ contentClass: 'custom-v-list-item-list' }"
+          class="custom-field"
+        />
         <label for="friendly">친근함 정도</label>
-        <input
+        <v-text-field
           type="number"
           min="1"
           max="5"
-          class="field"
-          placeholder="1~5 사이 (높을 수록 친근합니다.)"
+          label="(1 - 5 사이)"
+          class="custom-field"
+          variant="outlined"
           v-model="formData.friendly"
           name="friendly"
         />
         <label for="essestialComment">필수내용</label>
-        <textarea
-          class="field text-area"
+        <v-textarea
+          class="custom-field"
+          variant="outlined"
+          label="필수내용"
           v-model="formData.essestialComment"
           name="essestialComment"
         />
         <label for="toneFile">말투 파일</label>
-        <input type="file" @change="onFileChange" name="toneFile" />
-      </div>
+        <v-file-input
+          type="file"
+          variant="outlined"
+          @change="onFileChange"
+          name="toneFile"
+          class="custom-field-file"
+          label="파일을 넣어주세요"
+        />
+      </v-container>
       <div class="form-button-wrapper">
-        <button class="form-button" type="submit" @click.prevent="onSubmitForm">
+        <v-btn class="form-button" type="submit" @click.prevent="onSubmitForm">
           편지생성
-        </button>
+        </v-btn>
       </div>
-    </form>
-  </div>
+    </v-form>
+  </v-sheet>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .form-wrapper {
-  border: 1px solid grey;
+  border: 4px solid var(--main-amethyst);
   border-radius: 16px;
-  padding: 12px;
-  margin: 16px 8px;
+  padding: 18px;
+  margin: 0 8px;
+  background: var(--main-dark-wine);
 }
 
 .form-container {
   display: grid;
   grid-template-columns: 1fr 3fr;
-  gap: 8px;
+  gap: 16px 8px;
   align-items: center;
   margin-bottom: 8px;
 }
@@ -140,7 +166,9 @@ const onSubmitForm = () => {
   align-self: center;
   border: 1px solid grey;
   border-radius: 8px;
-  padding: 8px 16px;
+  font-size: 1.25rem;
+  padding: 16px;
+  height: auto;
   background-color: transparent;
   width: fit-content;
 }
@@ -152,5 +180,30 @@ const onSubmitForm = () => {
 
 .form-button:active {
   background-color: rgba(212, 212, 212, 0.8);
+}
+</style>
+
+<style lang="scss">
+.custom-field-file {
+  .v-input__prepend {
+    display: none;
+    margin: 0 !important;
+  }
+
+  .v-input__details {
+    display: none;
+  }
+}
+
+.custom-field {
+  .v-input__details {
+    display: none;
+  }
+}
+
+.custom-v-list-item-list {
+  .v-list {
+    background-color: var(--main-amethyst) !important;
+  }
 }
 </style>
