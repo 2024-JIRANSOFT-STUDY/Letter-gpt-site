@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import Main from "../views/Main.vue";
 import Setting from "../views/Setting.vue";
 import Result from "@/views/Result.vue";
+import SignIn from "@/views/SignIn.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -17,6 +18,10 @@ const router = createRouter({
     {
       path: "/result/:id",
       component: Result,
+    },
+    {
+      path: "/signIn",
+      component: SignIn,
     },
   ],
 });
