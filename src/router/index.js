@@ -26,4 +26,6 @@ const router = createRouter({
   ],
 });
 
+// TODO: Login 로직에 따른 Router 가드
+
 export default router;

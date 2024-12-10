@@ -7,6 +7,7 @@
         class="signin-input custom-field"
         type="text"
         variant="outlined"
+        v-model="email"
       />
     </v-container>
     <v-container class="field-container">
@@ -15,11 +16,37 @@
         class="signin-input custom-field"
         type="password"
         variant="outlined"
+        v-model="password"
       />
     </v-container>
-    <v-btn class="login-button" type="submit">로그인</v-btn>
+    <v-btn class="login-button" type="submit" @click.prevent="login">
+      로그인
+    </v-btn>
   </v-form>
 </template>
+
+<script setup>
+import { useStore } from "vuex";
+import { ref } from "vue";
+
+const email = ref("");
+const password = ref("");
+const store = useStore();
+
+const login = async () => {
+  console.log(email._value);
+  console.log(password._value);
+  try {
+    const response = await store.dispatch("auth/login", {
+      email: email._value,
+      password: password._value,
+    });
+    console.log(response);
+  } catch (error) {
+    console.error(error);
+  }
+};
+</script>
 
 <style lang="scss" scoped>
 .signin-form {
