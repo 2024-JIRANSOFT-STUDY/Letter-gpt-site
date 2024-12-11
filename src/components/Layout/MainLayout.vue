@@ -59,8 +59,8 @@ h1 {
 #main-wrapper {
   position: relative;
   width: 100%;
-  height: auto;
-  overflow-y: scroll;
+  height: 100vh;
+  overflow-y: auto;
   background-color: var(--main);
 }
 

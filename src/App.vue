@@ -6,7 +6,18 @@
 </template>
 
 <script setup>
+import { ref, provide } from "vue";
 import Sidebar from "./components/Sidebar.vue";
+
+const isExpanded = ref(false);
+
+// 사이드바 토글 함수
+const toggleSidebar = () => {
+  isExpanded.value = !isExpanded.value;
+};
+
+provide("isExpanded", isExpanded);
+provide("toggleSidebar", toggleSidebar);
 </script>
 
 <style lang="scss">
