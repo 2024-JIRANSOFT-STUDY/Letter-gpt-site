@@ -28,7 +28,9 @@
 <script setup>
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
-import { ref } from "vue";
+import { ref, inject } from "vue";
+
+const setOpenSnackBar = inject("setOpenSnackBar");
 
 const email = ref("");
 const password = ref("");
@@ -37,14 +39,15 @@ const router = useRouter();
 
 const login = async () => {
   try {
-    const response = await store.dispatch("auth/login", {
-      email: email._value,
-      password: password._value,
+    await store.dispatch("auth/login", {
+      email: email.value,
+      password: password.value,
     });
     router.push("/");
   } catch (error) {
-    console.error(error);
-    // TODO: 로그인 실패 메시지
+    const errorResponse = error.response;
+    console.error(errorResponse);
+    setOpenSnackBar("로그인에 실패했습니다. 다시 시도해주세요");
   }
 };
 </script>
