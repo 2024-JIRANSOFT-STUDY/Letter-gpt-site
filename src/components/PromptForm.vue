@@ -1,14 +1,26 @@
 <script setup>
-import { reactive } from "vue";
+import { reactive, computed, inject } from "vue";
+import { useStore } from "vuex";
+import axiosInstance from "@/services/base";
+import { useRouter } from "vue-router";
+
+const store = useStore();
+
+const userInfo = computed(() => store.getters["auth/getUserId"]);;
+
+const setLoading = inject('setLoading');
+const setModal = inject('setModal');
+
+const router = useRouter();
 
 const formData = reactive({
   receiver: "",
   situation: "normal",
-  myAge: null,
-  myGender: "male",
+  my_age: null,
+  my_gender: "male",
   friendly: null,
-  essestialComment: "",
-  toneFile: null,
+  essestial_comment: "",
+  tone_file: null,
 });
 
 const situationListData = [
@@ -31,13 +43,35 @@ const GenderListData = [
 const onFileChange = (event) => {
   const selectedFile = event.target.files[0];
   if (selectedFile) {
-    formData.toneFile = selectedFile;
-    console.log(formData.toneFile);
+    formData.tone_file = selectedFile;
+    console.log(formData.tone_file);
   }
 };
 
-const onSubmitForm = () => {
-  console.log(JSON.stringify(formData));
+const onSubmitForm = async () => {
+  setLoading(true);
+  const userId = userInfo.value
+  if (!userId) {
+    setModal(true, '로그인 필요', '로그인이 필요합니다. 로그인 하러 갈까요?', () => router.push('/signIn'));
+    setLoading(false);
+    return;
+  }
+  try {
+    const response = await axiosInstance.post(`/api/users/${userId}/letters`, formData);
+    if (response.statusText === "Created") {
+      setModal(true, '편지 생성 완료', '편지가 생성됐어요! 확인하러 갈까요?', () => router.push(`/result/${response.data.data.id}`))
+    }
+  } catch (error) {
+    console.error(error);
+    const errorResponse = error.response;
+    if(errorResponse.data.message === "Validation error") {
+      setModal(true, '편지 생성 에러', '필수 입력값을 입력해주세요.', () => {});
+    } else {
+      setModal(true, '편지 생성 에러', '알 수 없는 에러입니다. 다시 시도해주세요.', () => {});  
+    }
+  } finally {
+    setLoading(false);
+  }
 };
 </script>
 
@@ -68,14 +102,14 @@ const onSubmitForm = () => {
         <label for="myAge">본인나이</label>
         <v-text-field
           type="number"
-          v-model="formData.myAge"
+          v-model="formData.my_age"
           name="myAge"
           variant="outlined"
           class="custom-field"
         />
         <label for="myGender">본인성별</label>
         <v-select
-          v-model="formData.myGender"
+          v-model="formData.my_gender"
           label="본인성별"
           variant="outlined"
           :items="GenderListData"
@@ -100,7 +134,7 @@ const onSubmitForm = () => {
           class="custom-field"
           variant="outlined"
           label="필수내용"
-          v-model="formData.essestialComment"
+          v-model="formData.essestial_comment"
           name="essestialComment"
         />
         <label for="toneFile">말투 파일</label>
@@ -108,7 +142,7 @@ const onSubmitForm = () => {
           type="file"
           variant="outlined"
           @change="onFileChange"
-          name="toneFile"
+          name="tone_file"
           class="custom-field-file"
           label="파일을 넣어주세요"
         />

@@ -33,17 +33,16 @@ export default function (store) {
     const accessToken = cookies.get("accessToken");
 
     if (accessToken) {
-      store.commit("auth/needLogin", false);
+      store.dispatch("auth/refreshToken");
 
+      // 로그인 상태에선 홈으로 이동
       if (to.path === "/signIn") {
         return next("/");
       }
     } else {
-      store.commit("auth/needLogin", true);
-
-      if (to.path !== "/signIn") {
-        return next("/signIn");
-      }
+      store.commit("auth/setAuthentication", {
+        needLogin: true,
+      })
     }
 
     next();
