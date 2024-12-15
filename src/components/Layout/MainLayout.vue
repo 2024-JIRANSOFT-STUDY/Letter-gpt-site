@@ -3,12 +3,6 @@ import { inject } from "vue";
 
 const isExpanded = inject("isExpanded");
 const toggleSidebar = inject("toggleSidebar");
-
-import { useCookies } from "vue3-cookies";
-
-const { cookies } = useCookies();
-
-console.log(cookies.get("accessToken"));
 </script>
 
 <template>
