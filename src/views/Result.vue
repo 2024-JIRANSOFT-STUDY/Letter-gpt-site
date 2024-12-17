@@ -1,10 +1,11 @@
 <script setup>
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 import { computed, watch, ref } from 'vue';
 import axiosInstance from '@/services/base';
 
 const route = useRoute();
+const router = useRouter();
 const store = useStore();
 
 const letterId = route.params.id;
@@ -31,8 +32,10 @@ const getLetterInfo = async () => {
 }
 
 const deleteLetter = async () => {
+  const userId = userInfo.value;
   try {
-    const response = await axiosInstance.delete(`/api/users/${userId}/letters/${letterId}`);
+    await axiosInstance.delete(`/api/users/${userId}/letters/${letterId}`);
+    router.push('/');
   } catch (error) {
     console.error(error)
   }
@@ -47,7 +50,9 @@ watch(userInfo, (newUserInfo) => {
 
 <template>
   <div class="wrapper">
-    <img src="/src/assets/MainLogo.png" alt="logo" />
+    <router-link :to="{ path: '/' }">
+      <img src="/src/assets/MainLogo.png" alt="logo" />
+    </router-link>
     <main class="container">
       <div class="title-container">
         <h2 class="title">{{ letterTitle }}</h2>
@@ -57,7 +62,7 @@ watch(userInfo, (newUserInfo) => {
       </div>
     </main>
     <div class="button-container">
-      <v-btn class="custom-button" variant="outlined">편지 삭제하기</v-btn>
+      <v-btn class="custom-button" variant="outlined" @click="deleteLetter">편지 삭제하기</v-btn>
     </div>
   </div>
 </template>

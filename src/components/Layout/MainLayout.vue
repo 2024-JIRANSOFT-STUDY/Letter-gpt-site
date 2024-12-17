@@ -11,7 +11,9 @@ const toggleSidebar = inject("toggleSidebar");
       <img src="@/assets/Letter_GPT_logo.png" alt="logo" />
     </button>
     <div id="main-box">
-      <img src="/src/assets/MainLogo.png" alt="logo" />
+      <router-link :to="{ path: '/' }">
+        <img src="/src/assets/MainLogo.png" alt="logo" />
+      </router-link>
       <main id="main-container">
         <div class="b-level-comment">
           <p>편지는 써야겠고 하지만 편지쓰기는 힘들 때가 있죠?</p>
