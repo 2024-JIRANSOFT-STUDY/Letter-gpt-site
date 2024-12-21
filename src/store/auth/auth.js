@@ -53,7 +53,7 @@ export default {
       return new Promise(async (resolve, reject) => {
         try {
           const response = await axiosInstance.post("/api/auth/refresh");
-          if (response.statusText === "OK") {
+          if (response.status === 200) {
             const accessToken = response.data.data.access_token;
             const expire = response.data.data.expires_in;
             const userId = response.data.data.user_id;
@@ -62,9 +62,14 @@ export default {
               userId,
               needLogin: false,
             });
+            resolve();
           }
         } catch (error) {
           console.error(error);
+          cookies.remove("accessToken");
+          cookies.remove("refreshToken");
+          commit("setAuthentication", { userId: "", needLogin: true });
+          window.location.href = "/";
           reject(error);
         }
       });

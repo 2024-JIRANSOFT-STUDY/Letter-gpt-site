@@ -15,11 +15,11 @@
             <div class="setting-user">
               <div class="user-item">
                 <v-icon color="primary" class="user-icon">mdi-account</v-icon>
-                <span class="user-text">이름: 김지란</span>
+                <span class="user-text">이름: {{ user.name || '정보 없음'}}</span>
               </div>
               <div class="user-item">
                 <v-icon color="primary" class="user-icon">mdi-email</v-icon>
-                <span class="user-text">이메일: jiran@jiran.com</span>
+                <span class="user-text">이메일: {{ user.email || '정보 없음'}}</span>
               </div>
             </div>
           </v-card-text>
@@ -56,29 +56,98 @@
 </template>
 
 <script setup>
-import { inject, ref } from "vue";
+import { inject, ref, onMounted } from "vue";
+import axiosInstance from "@/services/base";
+import { useCookies } from "vue3-cookies";
 
 // App.vue에서 제공한 사이드바 상태와 컨트롤 함수 주입
 const isExpanded = inject("isExpanded");
 const toggleSidebar = inject("toggleSidebar");
 
+
 const dialog_history = ref(false); // 히스토리 삭제 다이얼로그 상태
 const dialog_logout = ref(false); // 로그아웃 다이얼로그 상태
+const user = ref({});
 
-// 로그아웃
-const logout = () => {
-  alert("로그아웃되었습니다.");
-  dialog_logout.value = false;
+const { cookies } = useCookies();
+
+// 사용자 정보 불러오기
+const fetchUserInfo = async () => {
+  try {
+    const response = await axiosInstance.get("/api/auth/me");
+    if (response.data.result === "success") {
+      user.value = response.data.user;
+    } else {
+      console.error(response.data.message);
+    }
+  } catch (error) {
+    if (error.response && error.response.status === 401) {
+      // 토큰이 없는 경우 리다이렉트
+      const accessToken = cookies.get("accessToken");
+      if (!accessToken) {
+        alert("로그인이 필요합니다. 다시 로그인해주세요.");
+        cookies.remove("accessToken");
+        cookies.remove("refreshToken");
+        window.location.href = "/";
+      } else {
+        console.error("401 Unauthorized: 서버에서 요청을 거부했습니다.");
+      }
+    } else {
+      console.error("사용자 정보 가져오기 중 오류:", error);
+    }
+  }
 };
 
-const logoutConfirm = () => {
-  dialog_logout.value = true;
+// 로그아웃
+const logout = async() => {
+  try {
+    const response = await axiosInstance.post("/api/auth/logout");
+    if (response.data.result === "success") {
+      cookies.remove("access_token");
+      cookies.remove("refresh_token");
+      alert("로그아웃되었습니다.");
+      if (window.location.pathname !== "/") {
+        window.location.href = "/";
+      }
+    } else {
+      console.error(response.data.message);
+      
+    } 
+  } catch (error) {
+    console.error(error);
+    alert("로그아웃에 실패했습니다.");
+  }
 };
 
 // 히스토리 지우기
-const clearHistory = () => {
-  alert("히스토리가 삭제되었습니다.");
-  dialog_history.value = false;
+const clearHistory = async () => {
+  try {
+    const userId = user.value.id;
+    if (!userId) {
+      alert("사용자 정보 불러오기 실패");
+      return;
+    }
+
+    const response = await axiosInstance.delete(`/api/users/${userId}/letters`);
+    if (response.data.result === "success") {
+      alert("히스토리가 삭제되었습니다.");
+      dialog_history.value = false;
+    } else {
+      console.error(response.data.message);
+      alert("히스토리 삭제 실패");
+    }
+  } catch (error) {
+    console.error(error);
+    alert("히스토리 삭제 실패");
+  }
+}
+
+onMounted(() => {
+  fetchUserInfo();
+});
+
+const logoutConfirm = () => {
+  dialog_logout.value = true;
 };
 
 const clearHistoryConfirm = () => {
