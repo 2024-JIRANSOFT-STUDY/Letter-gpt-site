@@ -53,7 +53,7 @@ export default {
       return new Promise(async (resolve, reject) => {
         try {
           const response = await axiosInstance.post("/api/auth/refresh");
-          if (response.status === 200) {
+          if (response.statusText === "OK") {
             const accessToken = response.data.data.access_token;
             const expire = response.data.data.expires_in;
             const userId = response.data.data.user_id;
@@ -72,6 +72,15 @@ export default {
           window.location.href = "/";
           reject(error);
         }
+      });
+    },
+    logout({ commit }) {
+      return new Promise((resolve) => {
+        cookies.remove("accessToken");
+        cookies.remove("refreshToken");
+        commit("clearAuthentication");
+        localStorage.removeItem("vuex"); 
+        resolve();
       });
     },
   },

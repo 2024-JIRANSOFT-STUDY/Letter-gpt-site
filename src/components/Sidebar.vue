@@ -27,7 +27,7 @@
             </div>
           </v-list-item>
         </v-list>
-        <div ref="observer" class="observer"></div>
+        <div v-show="hasMore" ref="observer" class="observer"></div>
         <div v-if="isLoading" class="loading-indicator">로딩 중...</div>
       </div>
     </template>
@@ -48,8 +48,9 @@
 
 <script setup>
 import axiosInstance from "@/services/base";
-import { computed, ref, inject, onMounted, onUnmounted } from "vue";
+import { computed, ref, inject, onMounted, onUnmounted, watch } from "vue";
 import { useStore } from "vuex";
+import { useRouter } from "vue-router";
 
 const isExpanded = inject("isExpanded");
 const toggleSidebar = inject("toggleSidebar");
@@ -60,13 +61,16 @@ const userId = computed(() => store.getters["auth/getUserId"]);
 const prompts = ref([]); 
 const selectedPromptId = ref(null); 
 const isLoading = ref(false); 
-const hasMore = ref(true); // 추가 데이터가 있는지
+const hasMore = ref(true); // 추가 데이터 여부
 const observer = ref(null); 
-let currentPage = 1; 
+let currentPage = 1;
 
-// 프롬프트 선택
+const router = useRouter();
+
+// 프롬프트 선택 후 페이지 이동
 const selectPrompt = (id) => {
   selectedPromptId.value = id;
+  router.push(`/result/${id}`);
 };
 
 // 데이터 불러오기
@@ -80,9 +84,9 @@ const fetchPrompts = async () => {
       `/api/users/${userId.value}/letters`,
       {
         params: {
-          limit: 10, // 한 번에 가져올 데이터
+          limit: 20,
           pagination: true,
-          page: currentPage, // 현재 페이지
+          page: currentPage,
         },
         headers: {
           Authorization: `Bearer ${store.getters["auth/getToken"]}`,
@@ -93,11 +97,23 @@ const fetchPrompts = async () => {
     const data = response.data;
 
     if (data.data && data.data.length > 0) {
-      prompts.value = [...prompts.value, ...data.data]; 
-      currentPage++; 
-      hasMore.value = !!data.next_page; // 다음 페이지 존재 여부 확인
+      // 날짜 형식 변환
+      const formattedData = data.data.map((item) => {
+        const date = new Date(item.created_at);
+        const formattedDate = `${date.getFullYear()}-${String(
+          date.getMonth() + 1
+        ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+        return {
+          ...item,
+          created_at: formattedDate,
+        };
+      });
+
+      prompts.value = [...prompts.value, ...formattedData];
+      currentPage++;
+      hasMore.value = !!data.next_page; // 다음 페이지 여부
     } else {
-      hasMore.value = false; // 데이터가 없음
+      hasMore.value = false; // 더 이상 데이터 없음
     }
   } catch (error) {
     console.error("데이터 로드 실패:", error.response?.data || error.message);
@@ -106,7 +122,7 @@ const fetchPrompts = async () => {
   }
 };
 
-// Intersection Observer 생성
+// Intersection Observer
 const createObserver = () => {
   const options = {
     root: null,
@@ -116,7 +132,6 @@ const createObserver = () => {
 
   const callback = (entries) => {
     if (entries[0].isIntersecting && hasMore.value && !isLoading.value) {
-      console.log("Observer 트리거 : 데이터 로드 중...");
       fetchPrompts();
     }
   };
@@ -124,18 +139,34 @@ const createObserver = () => {
   const observerInstance = new IntersectionObserver(callback, options);
   if (observer.value) {
     observerInstance.observe(observer.value);
+  } else {
+    console.error("Observer 대상 없음");
   }
   return observerInstance;
 };
 
 let observerInstance = null;
 
+// 로그인 상태 변경 감지
+watch(userId, (newUserId) => {
+  if (newUserId) {;
+    prompts.value = [];
+    currentPage = 1;
+    hasMore.value = true;
+    fetchPrompts(); 
+  } else {
+    prompts.value = [];
+    currentPage = 1;
+    hasMore.value = false;
+  }
+});
+
 onMounted(() => {
   if (userId.value) {
-    prompts.value = []; 
-    currentPage = 1; 
-    hasMore.value = true; 
-    fetchPrompts(); 
+    prompts.value = [];
+    currentPage = 1;
+    hasMore.value = true;
+    fetchPrompts();
   }
   observerInstance = createObserver();
 });
@@ -170,7 +201,6 @@ onUnmounted(() => {
   color: var(--light);
 }
 
-/* 로고 스타일 */
 .logo {
   margin: 10px;
   text-align: left;
@@ -181,21 +211,18 @@ onUnmounted(() => {
   cursor: pointer;
 }
 
-/* 이전 프롬프트 타이틀 */
 .color-text {
   font-size: 16px;
   color: var(--light);
   margin: 16px;
 }
 
-/* 프롬프트 리스트 컨테이너 */
 .prompt-list-container {
   flex: 1;
   overflow-y: auto;
   max-height: calc(100vh - 200px);
 }
 
-/* 프롬프트 리스트 */
 .prompt-list {
   margin: 0;
   padding: 0;
@@ -218,7 +245,6 @@ onUnmounted(() => {
   font-weight: bold;
 }
 
-/* 설정 메뉴 */
 .settings-item {
   margin: 10px;
   cursor: pointer;
@@ -229,7 +255,6 @@ onUnmounted(() => {
   color: var(--light);
 }
 
-/* 아이콘과 텍스트 정렬 */
 .icon-text {
   display: flex;
   align-items: center;
