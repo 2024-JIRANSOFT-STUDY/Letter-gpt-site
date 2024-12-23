@@ -7,7 +7,7 @@
   >
     <!-- 로고 -->
     <div class="logo" @click="toggleSidebar">
-      <img :src="logoURL" alt="logo" />
+      <img src="@/assets/Letter_GPT_logo.png" alt="logo" />
     </div>
 
     <!-- 이전 프롬프트 -->
@@ -22,11 +22,13 @@
             @click="selectPrompt(prompt.id)"
           >
             <div class="list-item-content">
-              <div class="list-item-title">{{ prompt.summary }}</div>
-              <div class="list-item-subtitle">{{ prompt.DateOfUsed }}</div>
+              <div class="list-item-title">{{ prompt.title }}</div>
+              <div class="list-item-subtitle">{{ prompt.created_at }}</div>
             </div>
           </v-list-item>
         </v-list>
+        <div ref="observer" class="observer"></div>
+        <div v-if="isLoading" class="loading-indicator">로딩 중...</div>
       </div>
     </template>
 
@@ -45,36 +47,104 @@
 </template>
 
 <script setup>
-import { ref, inject } from "vue";
-import logoURL from "../assets/Letter_GPT_logo.png";
+import axiosInstance from "@/services/base";
+import { computed, ref, inject, onMounted, onUnmounted } from "vue";
+import { useStore } from "vuex";
 
 const isExpanded = inject("isExpanded");
 const toggleSidebar = inject("toggleSidebar");
 
-// 프롬프트 데이터
-const prompts = ref([
-    { id: 1, summary: "친구에게 쓰는 생일 편지", DateOfUsed: "2024-11-18" },
-    { id: 2, summary: "상사에게 쓰는 감사 편지", DateOfUsed: "2024-11-15" },
-    { id: 3, summary: "남자친구에게 쓰는 기념일 편지", DateOfUsed: "2024-10-20" },
-    { id: 4, summary: "여자친구에게 쓰는 기념일 편지", DateOfUsed: "2024-10-11" },
-    { id: 5, summary: "할아버지께 쓰는 칠순 기념 편지", DateOfUsed: "2024-10-03" },
-    { id: 6, summary: "신년 인삿말", DateOfUsed: "2023-12-20" },
-    { id: 7, summary: "한 해 마무리 인삿말", DateOfUsed: "2023-12-18" },
-    { id: 8, summary: "수능 응원", DateOfUsed: "2023-11-12" },
-    { id: 9, summary: "병문안 인사", DateOfUsed: "2023-11-02" },
-    { id: 10, summary: "생일 축하 인사", DateOfUsed: "2023-10-30" },
-    { id: 11, summary: "블라블라1", DateOfUsed: "2023-10-20" },
-    { id: 12, summary: "블라블라2", DateOfUsed: "2023-10-08" },
-    { id: 13, summary: "블라블라3", DateOfUsed: "2023-09-30" },
-    { id: 14, summary: "블라블라4", DateOfUsed: "2023-09-02" },
-    { id: 15, summary: "블라블라5", DateOfUsed: "2023-08-30" },
-  ]); 
+const store = useStore();
+const userId = computed(() => store.getters["auth/getUserId"]);
 
-const selectedPromptId = ref(null);
+const prompts = ref([]); 
+const selectedPromptId = ref(null); 
+const isLoading = ref(false); 
+const hasMore = ref(true); // 추가 데이터가 있는지
+const observer = ref(null); 
+let currentPage = 1; 
 
+// 프롬프트 선택
 const selectPrompt = (id) => {
   selectedPromptId.value = id;
 };
+
+// 데이터 불러오기
+const fetchPrompts = async () => {
+  if (isLoading.value || !hasMore.value) return;
+
+  isLoading.value = true;
+
+  try {
+    const response = await axiosInstance.get(
+      `/api/users/${userId.value}/letters`,
+      {
+        params: {
+          limit: 10, // 한 번에 가져올 데이터
+          pagination: true,
+          page: currentPage, // 현재 페이지
+        },
+        headers: {
+          Authorization: `Bearer ${store.getters["auth/getToken"]}`,
+        },
+      }
+    );
+
+    const data = response.data;
+
+    if (data.data && data.data.length > 0) {
+      prompts.value = [...prompts.value, ...data.data]; 
+      currentPage++; 
+      hasMore.value = !!data.next_page; // 다음 페이지 존재 여부 확인
+    } else {
+      hasMore.value = false; // 데이터가 없음
+    }
+  } catch (error) {
+    console.error("데이터 로드 실패:", error.response?.data || error.message);
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+// Intersection Observer 생성
+const createObserver = () => {
+  const options = {
+    root: null,
+    rootMargin: "0px",
+    threshold: 1.0,
+  };
+
+  const callback = (entries) => {
+    if (entries[0].isIntersecting && hasMore.value && !isLoading.value) {
+      console.log("Observer 트리거 : 데이터 로드 중...");
+      fetchPrompts();
+    }
+  };
+
+  const observerInstance = new IntersectionObserver(callback, options);
+  if (observer.value) {
+    observerInstance.observe(observer.value);
+  }
+  return observerInstance;
+};
+
+let observerInstance = null;
+
+onMounted(() => {
+  if (userId.value) {
+    prompts.value = []; 
+    currentPage = 1; 
+    hasMore.value = true; 
+    fetchPrompts(); 
+  }
+  observerInstance = createObserver();
+});
+
+onUnmounted(() => {
+  if (observerInstance && observer.value) {
+    observerInstance.unobserve(observer.value);
+  }
+});
 </script>
 
 <style scoped>
@@ -91,12 +161,11 @@ const selectPrompt = (id) => {
   font-size: 14px;
 }
 
-
 /* 사이드바 전체 스타일 */
 .custom-drawer {
   display: flex;
   flex-direction: column;
-  height: 100vh; /* 사이드바 높이 고정 */
+  height: 100vh;
   background-color: var(--mid);
   color: var(--light);
 }
@@ -121,9 +190,9 @@ const selectPrompt = (id) => {
 
 /* 프롬프트 리스트 컨테이너 */
 .prompt-list-container {
-  flex: 1; /* 부모 안에서 나머지 공간 차지 */
-  overflow-y: auto; /* 스크롤 가능 */
-  max-height: calc(100vh - 200px); /* 최대 높이 제한 */
+  flex: 1;
+  overflow-y: auto;
+  max-height: calc(100vh - 200px);
 }
 
 /* 프롬프트 리스트 */
