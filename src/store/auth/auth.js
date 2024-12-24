@@ -62,11 +62,25 @@ export default {
               userId,
               needLogin: false,
             });
+            resolve();
           }
         } catch (error) {
           console.error(error);
+          cookies.remove("accessToken");
+          cookies.remove("refreshToken");
+          commit("setAuthentication", { userId: "", needLogin: true });
+          window.location.href = "/";
           reject(error);
         }
+      });
+    },
+    logout({ commit }) {
+      return new Promise((resolve) => {
+        cookies.remove("accessToken");
+        cookies.remove("refreshToken");
+        commit("clearAuthentication");
+        localStorage.removeItem("vuex"); 
+        resolve();
       });
     },
   },
