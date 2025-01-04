@@ -6,10 +6,10 @@ import { useRouter } from "vue-router";
 
 const store = useStore();
 
-const userInfo = computed(() => store.getters["auth/getUserId"]);;
+const userInfo = computed(() => store.getters["auth/getUserId"]);
 
-const setLoading = inject('setLoading');
-const setModal = inject('setModal');
+const setLoading = inject("setLoading");
+const setModal = inject("setModal");
 
 const router = useRouter();
 
@@ -19,7 +19,7 @@ const formData = reactive({
   my_age: null,
   my_gender: "male",
   friendly: null,
-  essestial_comment: "",
+  essential_comment: "",
   tone_file: null,
 });
 
@@ -50,24 +50,42 @@ const onFileChange = (event) => {
 
 const onSubmitForm = async () => {
   setLoading(true);
-  const userId = userInfo.value
+  const userId = userInfo.value;
   if (!userId) {
-    setModal(true, '로그인 필요', '로그인이 필요합니다. 로그인 하러 갈까요?', () => router.push('/signIn'));
+    setModal(
+      true,
+      "로그인 필요",
+      "로그인이 필요합니다. 로그인 하러 갈까요?",
+      () => router.push("/signIn")
+    );
     setLoading(false);
     return;
   }
   try {
-    const response = await axiosInstance.post(`/api/users/${userId}/letters`, formData);
+    const response = await axiosInstance.post(
+      `/api/users/${userId}/letters`,
+      formData
+    );
     if (response.statusText === "Created") {
-      setModal(true, '편지 생성 완료', '편지가 생성됐어요! 확인하러 갈까요?', () => router.push(`/result/${response.data.data.id}`))
+      setModal(
+        true,
+        "편지 생성 완료",
+        "편지가 생성됐어요! 확인하러 갈까요?",
+        () => router.push(`/result/${response.data.data.id}`)
+      );
     }
   } catch (error) {
     console.error(error);
     const errorResponse = error.response;
-    if(errorResponse.data.message === "Validation error") {
-      setModal(true, '편지 생성 에러', '필수 입력값을 입력해주세요.', () => {});
+    if (errorResponse.data.message === "Validation error") {
+      setModal(true, "편지 생성 에러", "필수 입력값을 입력해주세요.", () => {});
     } else {
-      setModal(true, '편지 생성 에러', '알 수 없는 에러입니다. 다시 시도해주세요.', () => {});  
+      setModal(
+        true,
+        "편지 생성 에러",
+        "알 수 없는 에러입니다. 다시 시도해주세요.",
+        () => {}
+      );
     }
   } finally {
     setLoading(false);
@@ -208,8 +226,12 @@ const onSubmitForm = async () => {
 }
 
 .form-button:hover {
-  background-color: rgba(212, 212, 212, 0.6);
+  background-color: rgba(255, 255, 255, 0.2);
   cursor: pointer;
+}
+
+.form-button:hover :deep(.v-btn__overlay) {
+  opacity: 0;
 }
 
 .form-button:active {
@@ -238,6 +260,21 @@ const onSubmitForm = async () => {
 .custom-v-list-item-list {
   .v-list {
     background-color: var(--point) !important;
+  }
+
+  .v-list > .v-list-item:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    .v-list-item__overlay {
+      opacity: 0;
+    }
+  }
+
+  .v-list-item--active {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+
+  .v-list-item--active > .v-list-item__overlay {
+    opacity: 0 !important;
   }
 }
 </style>

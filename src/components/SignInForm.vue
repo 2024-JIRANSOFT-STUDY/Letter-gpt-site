@@ -98,5 +98,13 @@ const login = async () => {
   height: auto;
   background-color: transparent;
   width: fit-content;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+}
+
+.login-button:hover :deep(.v-btn__overlay) {
+  opacity: 0;
 }
 </style>
