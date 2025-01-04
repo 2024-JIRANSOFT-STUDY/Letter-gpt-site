@@ -1,8 +1,9 @@
 <script setup>
-import { useRoute, useRouter } from 'vue-router';
-import { useStore } from 'vuex';
-import { computed, watch, ref } from 'vue';
-import axiosInstance from '@/services/base';
+import { useRoute, useRouter } from "vue-router";
+import { useStore } from "vuex";
+import { computed, watch, ref } from "vue";
+import ConfirmModal from "@/components/ConfirmModal.vue";
+import axiosInstance from "@/services/base";
 
 const route = useRoute();
 const router = useRouter();
@@ -15,13 +16,17 @@ const letterTitle = ref("");
 const letterContent = ref("");
 const letterCreatedAt = ref("");
 
+let setModalState = null;
+
 const getLetterInfo = async () => {
   const userId = userInfo.value;
   if (!userInfo) return;
   try {
-    const response = await axiosInstance.get(`/api/users/${userId}/letters/${letterId}`);
-    if(response.statusText === "OK") {
-      const responseData= response.data;
+    const response = await axiosInstance.get(
+      `/api/users/${userId}/letters/${letterId}`
+    );
+    if (response.statusText === "OK") {
+      const responseData = response.data;
       letterTitle.value = responseData.letter.title;
       letterContent.value = responseData.letter.generated_content;
       letterCreatedAt = responseData.letter.created_at;
@@ -29,27 +34,44 @@ const getLetterInfo = async () => {
   } catch (error) {
     console.error(error);
   }
-}
+};
 
-const deleteLetter = async () => {
-  const userId = userInfo.value;
-  try {
-    await axiosInstance.delete(`/api/users/${userId}/letters/${letterId}`);
-    router.push('/');
-  } catch (error) {
-    console.error(error)
+const deleteLetter = () => {
+  if (setModalState) {
+    setModalState(
+      true,
+      "편지 삭제",
+      "정말 편지를 삭제할까요? 이 작업은 되돌릴 수 없습니다.",
+      async () => {
+        const userId = userInfo.value;
+        try {
+          await axiosInstance.delete(
+            `/api/users/${userId}/letters/${letterId}`
+          );
+          router.push("/");
+        } catch (error) {
+          console.error(error);
+        }
+      }
+    );
   }
-}
+};
 
-watch(userInfo, (newUserInfo) => {
-  if (newUserInfo) {
-    getLetterInfo();
-  }
-}, { immediate: true });
+watch(
+  userInfo,
+  (newUserInfo) => {
+    if (newUserInfo) {
+      getLetterInfo();
+    }
+  },
+  { immediate: true }
+);
 </script>
 
 <template>
   <div class="wrapper">
+    <ConfirmModal @set-modal="(fn) => (setModalState = fn)" />
+
     <router-link :to="{ path: '/' }">
       <img src="/src/assets/MainLogo.png" alt="logo" />
     </router-link>
@@ -62,7 +84,9 @@ watch(userInfo, (newUserInfo) => {
       </div>
     </main>
     <div class="button-container">
-      <v-btn class="custom-button" variant="outlined" @click="deleteLetter">편지 삭제하기</v-btn>
+      <v-btn class="custom-button" variant="outlined" @click="deleteLetter"
+        >편지 삭제하기</v-btn
+      >
     </div>
   </div>
 </template>
@@ -105,7 +129,6 @@ watch(userInfo, (newUserInfo) => {
   margin: 0 auto;
   margin-top: 12px;
   text-align: end;
-  
 
   .custom-button {
     &:hover {
@@ -117,7 +140,4 @@ watch(userInfo, (newUserInfo) => {
     opacity: 0;
   }
 }
-
-
-
 </style>
